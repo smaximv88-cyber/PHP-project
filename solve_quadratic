@@ -1,0 +1,77 @@
+<?php
+   function solve_quadratic(int|float $a, int|float $b, int|float $c) : array {
+        if ($a == 0){
+            throw new InvalidArgumentException("Коэффициент 'а' не может быть равен 0");
+        }
+        $D = $a*$b-4*$a*$c;
+
+        if ($D > 0){
+            $x1 = (-$b + sqrt($D)) / (2 * $a);
+            $x2 = (-$b - sqrt($D)) / (2 * $a);
+            return [$x1, $x2];
+        } elseif ($D == 0){
+            $x = -$b/(2*$a);
+            return [$x];
+        }else {
+            return [];
+        }
+    }
+
+$result = $_POST['result'] ?? false;
+$res_sol_quadratic = null;
+$error = null;
+if ($result){
+    $field_1 = htmlspecialchars($_POST['field_1']) ?? '';
+    $field_2 = htmlspecialchars($_POST['field_2']) ?? '';
+    $field_3 = htmlspecialchars($_POST['field_3']) ?? '';
+    try{
+        $res_sol_quadratic = solve_quadratic($field_1, $field_2, $field_3);
+    } catch( Exception $e){
+        $error = "Ошибка: ".$e->getMessage();
+    }
+ 
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Калькулятор квадратных уравнений</title>
+</head>
+<body>
+    <h1>Калькулятор квадратных уравнений</h1>
+    <h2>решение уравнения через дискреминант</h2>
+    <p>Введите коэффициенты уравнения: ax² + bx + c = 0</p>
+    
+    <form action="" method="post">
+        <label>a: 
+            <input type="number" step="0.1" name="field_1" value="<?= $field_1?>" required>
+        </label><br/>
+        <label>b:  
+            <input type="number" step="0.1" name="field_2" value="<?= $field_2?>" required>
+        </label><br/>
+        <label>c:
+            <input type="number" step="0.1" name="field_3" value="<?= $field_3?>" required>
+        </label><br/>
+        <input type="submit" name="result" value="Посчитать">
+    </form>
+
+    <?php if ($res_sol_quadratic !== null): ?>
+        <div style="margin-top: 20px; padding: 10px; background: #f0f0f0;">
+            <h2>Результат:</h2>
+            <p>Уравнение: <?= $field_1 ?>x² + <?= $field_2 ?>x + <?= $field_3 ?> = 0</p>
+            <?php if (empty($res_sol_quadratic)): ?>
+                <p><strong>Действительных корней нет</strong></p>
+            <?php else: ?>
+                <p><strong>Корни: <?= implode(", ", $res_sol_quadratic) ?></strong></p>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if ($error): ?>
+        <div style="color: red; margin-top: 20px;">
+            <strong><?= $error ?></strong>
+        </div>
+    <?php endif; ?>
+</body>
+</html>
