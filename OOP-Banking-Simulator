@@ -1,0 +1,81 @@
+<?php
+    class BankAccount {
+        private string $accountNumber;
+        private float $balance;
+        private string $owner;
+
+
+        public function __construct(string $accountNumber, string $owner, float $balance = 0.0) {
+            $this->accountNumber = htmlspecialchars($accountNumber);
+            $this->owner = htmlspecialchars($owner);
+
+            $this->balance = ($balance < 0.0) ? 0.0 : $balance; 
+            
+        }
+        //полнение счета
+        public function deposit(float $amount) : float {
+            if (filter_var($amount, FILTER_VALIDATE_INT) && $amount <=0 ) {
+                return $this->balance += $amount;
+            } else {
+                throw new InvalidArgumentException("Deposit amount must be positive: ".$amount);
+            }
+        } 
+
+        //снятие средств
+        public function withdraw(float $amount) : float {
+            if (filter_var($amount, FILTER_VALIDATE_INT) && $amount <= 0){
+                return $this->balance -= $amount;
+            }elseif($amount > $this->balance){
+                throw new RuntimeException("Insufficient funds. Available: " . $this->balance);
+            }else {
+                throw new InvalidArgumentException("Value not integer: ".$amount);
+            }
+        }
+
+    // Перевод на другой счет (симуляция - в реальности нужен второй объект)
+    public function transfer(float $amount, BankAccount $targetAccount): void {
+        if ($amount <= 0) {
+            throw new InvalidArgumentException("Transfer amount must be positive: " . $amount);
+        }
+        if ($amount > $this->balance) {
+            throw new RuntimeException("Insufficient funds for transfer. Available: " . $this->balance);
+        }
+        
+        // Снимаем с текущего счета
+        $this->balance -= $amount;
+        // Пополняем целевой счет
+        $targetAccount->deposit($amount);
+    }
+
+    // Возвращает текущий баланс
+    public function getBalance(): float {
+        return $this->balance;
+    }
+
+    // Геттеры для остальных свойств
+    public function getAccountNumber(): string {
+        return $this->accountNumber;
+    }
+
+    public function getOwner(): string {
+        return $this->owner;
+    }
+    }
+
+try {
+    $account1 = new BankAccount("123456789", "John Doe", 1000.0);
+    $account2 = new BankAccount("987654321", "Jane Smith", 500.0);
+    
+    echo "Account 1 balance: " . $account1->getBalance() . "\n";
+    echo "Account 2 balance: " . $account2->getBalance() . "\n";
+    
+    $account1->transfer(200.0, $account2);
+    
+    echo "After transfer:\n";
+    echo "Account 1 balance: " . $account1->getBalance() . "\n";
+    echo "Account 2 balance: " . $account2->getBalance() . "\n";
+    
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
+?>
