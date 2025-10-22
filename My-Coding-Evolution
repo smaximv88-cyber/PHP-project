@@ -1,0 +1,80 @@
+<?php
+
+   class User {
+        private int $id;
+        private string $username;
+        private string $email;
+        private DateTime $createAt;
+
+        public function __construct(int $id, string $username, string $email, DateTime $createAt=null){
+            $this->id = $id;
+            $this->username = htmlspecialchars($username);
+      
+
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)){
+                $this->email=$email;
+            } else {
+                throw new InvalidArgumentException("E-mail not corret: $email");
+            }
+            
+            if($createAt === null){
+                $this->createAt = new DateTime();
+            } elseif($createAt instanceof DateTime){
+                $this->createAt = $createAt;
+            } elseif (is_string($createAt)){
+                $this->createAt = new DateTime();
+            } else {
+                throw new InvalidArgumentException("Nvalidate date format");
+            }
+        }
+
+        public function getId() : int {
+            return $this->id;
+        }
+        public function getUserName() : string {
+            return $this->username;
+        }
+
+        public function getEmail() : string {
+            return $this->email;
+        }
+
+        public function getCreatAt() : DateTime {
+            return $this->createAt;
+        }
+
+        public function setId(int $id) : int {
+            return $this->id = $id;
+        }
+
+        public function setUsername(string $username) : string {
+           return  $this->username = htmlspecialchars($username);
+        }
+
+        public function setEmail(string $email) : void {
+            if(filter_var($email, FILTER_VALIDATE_EMAIL)){
+                $this->email=$email;
+            }else {
+                throw new InvalidArgumentException("E-mail: not correct: $email");
+            }
+        }
+
+        public function getInfo() : string {
+            return "ID - {$this->id}, Name - {$this->username}, E-Mail - {$this->email}, Creat - {$this->createAt->format('d-m-Y H:i')})";             
+        }
+
+        public function isNew() : bool {
+            $now = new DateTime();
+            $interval = $this->createAt->diff($now);
+            return $interval->days < 7; 
+    }
+}
+
+try {
+    $user = new User (1 , 'Max', 'max@yandex.ru', new DateTime("14.10.2025"));
+    echo $user->getInfo(). "\n";
+    echo "Is new user: ".($user->isNew() ? "Yes" : "No")."\n";
+}catch(InvalidArgumentException $e){
+    echo "Error: ".$e->getMessage(). "\n";
+}
+?>
