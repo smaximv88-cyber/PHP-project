@@ -1,0 +1,75 @@
+<?php
+    class Vehicle {
+        private string $brand;
+        private string $model;
+        protected $speed;
+        protected $maxSpeed;
+        public function __construct(string $brand, string $model, int $speed, int $maxSpeed){
+            $this->brand =$brand;
+            $this->model = $model;
+            if ($speed < 0){
+                throw new Exception("Скорость не может быть отрицательной: " . $speed);
+            } else {
+              $this->speed = $speed;
+            }
+            if ($maxSpeed <= 0) {
+                throw new Exception("Максимальная скорость должна быть положительной: " . $maxSpeed);
+            }
+            $this->maxSpeed = $maxSpeed;
+        }
+
+        public function start(){
+            $this->speed = 0;
+            return "Транспорт запущен";
+        }
+        
+        public function stop(){
+            $this->speed = 0;
+            return "Транспорт останолвен";
+        }
+        public function accelerate($speed){
+            $newSpeed = $this->speed + $speed;
+            if($newSpeed >= $this->maxSpeed){
+                $this->speed = $this->maxSpeed;
+                return "Достигнута максмиальная скоркость";
+            }
+            $this->speed = $newSpeed;
+            return "Скорость увеличена до: " . $this->speed;
+        }
+
+        public function brake($speed){
+            $newSpeed = $this->speed - $speed;
+            if ($newSpeed < 0) {
+                $this->speed = 0;
+                return "Транспорт остановлен";
+            }
+            $this->speed = $newSpeed;
+            return "Скорость уменьшена до: " . $this->speed;
+        }
+
+        public function __toString() :string {
+            return $this->brand."\n". $this->model."\n". $this->speed."km/h\n". $this->maxSpeed."km/h\n";
+        }
+    }
+
+    class Car extends Vehicle {
+        private $fuelType;
+        public function __construct(string $brand, string $model, int $speed, int $maxSpeed, string $fuelType){
+            parent::__construct($brand, $model, $speed, $maxSpeed);
+            $this->fuelType = $fuelType;
+
+        }
+
+        public function __toString() : string {
+           return  parent::__toString(). "Type oil: ". $this->fuelType ."\n";
+        }
+    }
+
+    try{
+        $new_car = new Car('Kia', 'Sportage', 150, 200, '95 atom');
+        echo ($new_car->brake(50));
+    } catch (Exception $e){
+        echo "Error: ". $e->getMessage(). "\n";
+    }
+    
+?>
